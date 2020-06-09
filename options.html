@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Options - GitHub Checker</title>
   <style>
-    html {
-      height: 100%;
-    }
-
-    body {
-      display: flex;
-      height: 100%;
-      justify-content: center;
-      align-items: center;
-    }
-
     body, input, button {
       font-size: 1rem;
     }
@@ -25,17 +14,29 @@
       width: 100%;
       padding: .5rem;
       margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin-top: 0;
     }
 
     .container {
       max-width: 800px;
-      padding: 0 1rem;
+      padding: 1rem;
+      margin: 0 auto;
       display: flex;
     }
 
-    img {
+    .logo {
       width: 336px;
+      height: 336px;
       margin-right: 2rem;
+    }
+
+    .github-personal-token {
+      width: 100%;
+      -webkit-mask-image: linear-gradient(180deg, transparent 9%, black 33%, black 64%, transparent 97%)
     }
 
     #success-paragraph, #failure-paragraph, #loading-paragraph {
@@ -45,7 +46,7 @@
 </head>
 <body>
   <div class="container">
-    <img src="./images/icon.svg" />
+    <img class="logo" src="./images/icon.svg" />
     <form id="access-token-form">
       <h1>
         Hello there,
@@ -54,9 +55,14 @@
         Thanks for using GitHub Checker!
       </h2>
       <p>
-        Please, provide us with a
-        <a target="_blank" href="https://github.com/settings/tokens">personal access token</a>,
-        so we can fetch GitHub data on your behalf.
+        We need a personal access token to fetch GitHub data on your behalf.
+      </p>
+      <p>
+        Make sure you select "repo" from the scopes selection:
+        <img class="github-personal-token" src="./images/github-personal-token.png" />
+      </p>
+      <p>
+        Go <a target="_blank" href="https://github.com/settings/tokens/new">create a new token</a>.
       </p>
       <p>
         <input autofocus placeholder="Access token" type="text" id="access-token-input" />

@@ -2,6 +2,7 @@ import { loadPullRequests, loadLogin } from "./api.js"
 
 function openGitHub() { window.open("https://github.com/pulls/review-requested") }
 function openOptions() { chrome.runtime.openOptionsPage() }
+function refreshAlarmListener(event) { event.name === 'refresh' && loadAccessTokenAndInitialize() }
 
 function setBadgeListener(callback) {
   chrome.browserAction.onClicked.removeListener(openGitHub)
@@ -14,7 +15,8 @@ function setBadgeCounter(count) {
   chrome.browserAction.setBadgeBackgroundColor({ color: "#1E88E5" })
   chrome.alarms.clear("refresh")
   chrome.alarms.create('refresh', { periodInMinutes: 1 })
-  chrome.alarms.onAlarm.addListener(event => event.name === 'refresh' && loadAccessTokenAndInitialize())
+  chrome.alarms.onAlarm.removeListener(refreshAlarmListener)
+  chrome.alarms.onAlarm.addListener(refreshAlarmListener)
   setBadgeListener(openGitHub)
 }
 
@@ -26,13 +28,30 @@ function setBadgeError() {
   setBadgeListener(openOptions)
 }
 
-async function initializeChecker(accessToken) {
+function setBadgeOffline() {
+  chrome.browserAction.setBadgeText({ text: "Off" })
+  chrome.browserAction.setBadgeBackgroundColor({ color: "#666666" })
+  chrome.alarms.clear("refresh")
+  setBadgeListener(openGitHub)
+}
+
+function initializeChecker(accessToken) {
   return loadLogin(accessToken)
-    .then(data => loadPullRequests(accessToken, data.data.viewer.login))
-    .then(data => setBadgeCounter(data.data.search.issueCount))
-    .catch(error => {
+    .then(async response => {
+      if (response.status === 200) {
+        const json = await response.json()
+        return loadPullRequests(accessToken, json.data.viewer.login)
+      } else if (response.status === 401) {
+        setBadgeError()
+      }
+    })
+    .then(async response => {
+      if (response.status === 200) {
+        const json = await response.json()
+        setBadgeCounter(json.data.search.issueCount)
+      } else if (response.status === 401) {
       setBadgeError()
-      throw error
+      }
     })
 }
 
@@ -58,5 +77,8 @@ chrome.runtime.onMessage.addListener(
     return true
   }
 );
+
+window.addEventListener('online', loadAccessTokenAndInitialize);
+window.addEventListener('offline', setBadgeOffline);
 
 loadAccessTokenAndInitialize()

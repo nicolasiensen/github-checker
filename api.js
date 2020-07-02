@@ -16,12 +16,6 @@ export async function loadPullRequests(userToken, username) {
         `
       }
     )
-  }).then(response => {
-    if (response.status < 400) {
-      return response.json()
-    } else {
-      throw new Error(response.statusText)
-    }
   })
 }
 
@@ -40,11 +34,5 @@ export async function loadLogin(userToken) {
         `
       }
     )
-  }).then(response => {
-    if (response.status < 400) {
-      return response.json()
-    } else {
-      throw new Error(response.statusText)
-    }
   })
 }
